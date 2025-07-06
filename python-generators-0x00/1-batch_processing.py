@@ -12,7 +12,7 @@ def stream_users_in_batches(batch_size):
         cursor.execute("SELECT * FROM user_data LIMIT ? OFFSET ?", (batch_size, offset))
         rows = cursor.fetchall()
         if not rows:
-            break
+            break  # ✅ No return here!
         yield [dict(row) for row in rows]
         offset += batch_size
 

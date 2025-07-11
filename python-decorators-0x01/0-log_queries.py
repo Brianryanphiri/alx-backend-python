@@ -1,15 +1,7 @@
 #!/usr/bin/env python3
 import sqlite3
 import functools
-
-# === TEMP: Setup the database for testing ===
-conn = sqlite3.connect('users.db')
-cursor = conn.cursor()
-cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)")
-cursor.execute("INSERT INTO users (name) VALUES ('Alice'), ('Bob')")
-conn.commit()
-conn.close()
-# === END TEMP ===
+from datetime import datetime  # ✅ Required for timestamp logging
 
 def log_queries(func):
     @functools.wraps(func)
@@ -17,7 +9,8 @@ def log_queries(func):
         query = kwargs.get('query')
         if not query and args:
             query = args[0]
-        print(f"Executing SQL Query: {query}")
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(f"[{timestamp}] Executing SQL Query: {query}")
         return func(*args, **kwargs)
     return wrapper
 

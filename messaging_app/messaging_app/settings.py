@@ -12,6 +12,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework_simplejwt',
+    'django_filters',  # Add django-filters here
 
     # Your apps here
     # 'messaging_app.chats',
@@ -27,6 +28,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'chats.pagination.StandardResultsSetPagination',  # Add pagination class
+    'PAGE_SIZE': 20,
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],  # Enable filtering globally
 }
 
 SIMPLE_JWT = {

@@ -1,12 +1,8 @@
 from rest_framework import permissions
-from rest_framework.views import exception_handler
-from rest_framework.response import Response
-from rest_framework import status
 
 class IsParticipantOfConversation(permissions.BasePermission):
     """
-    Custom permission to allow only participants of a conversation to access messages.
-    Also requires user to be authenticated.
+    Allow access only if user is authenticated and participant of the conversation.
     """
 
     def has_permission(self, request, view):
@@ -14,7 +10,10 @@ class IsParticipantOfConversation(permissions.BasePermission):
         return request.user and request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        # Only allow participants to view/edit/delete
-        # Assuming `obj.conversation` is the conversation the message belongs to
-        # and `conversation.participants` is a queryset/list of users
-        return request.user in obj.conversation.participants.all()
+        # Check if user is participant of the conversation
+        is_participant = obj.conversation.participants.filter(id=request.user.id).exists()
+        if request.method in permissions.SAFE_METHODS:
+            return is_participant
+        elif request.method in ['PUT', 'PATCH', 'DELETE']:
+            return is_participant
+        return False

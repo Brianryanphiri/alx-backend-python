@@ -1,7 +1,8 @@
-from rest_framework import viewsets
+# chats/views.py
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+
 from .models import Message
 from .serializers import MessageSerializer
 from .permissions import IsParticipantOfConversation
@@ -11,7 +12,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsParticipantOfConversation]
 
     def get_queryset(self):
-        # Assuming Message has a conversation field with participants relation
+        # Only return messages from conversations the user participates in
         return Message.objects.filter(conversation__participants=self.request.user)
 
     def perform_create(self, serializer):
@@ -19,12 +20,10 @@ class MessageViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        if request.user not in instance.conversation.participants.all():
-            return Response({'detail': 'Not allowed'}, status=status.HTTP_403_FORBIDDEN)
+        self.check_object_permissions(request, instance)  # <--- Triggers custom permission
         return super().update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        if request.user not in instance.conversation.participants.all():
-            return Response({'detail': 'Not allowed'}, status=status.HTTP_403_FORBIDDEN)
+        self.check_object_permissions(request, instance)  # <--- Triggers custom permission
         return super().destroy(request, *args, **kwargs)

@@ -28,7 +28,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'chats.pagination.StandardResultsSetPagination',  # Add pagination class
+    'DEFAULT_PAGINATION_CLASS': 'messaging_app.chats.pagination.StandardResultsSetPagination',
     'PAGE_SIZE': 20,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],  # Enable filtering globally
 }

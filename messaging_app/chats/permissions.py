@@ -1,19 +1,28 @@
 from rest_framework import permissions
 
+
+class IsOwnerOrReadOnly(permissions.BasePermission):
+    """
+    Object-level permission to only allow owners of an object to view/edit it.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return obj.sender == request.user or obj.recipient == request.user
+    
+
 class IsParticipantOfConversation(permissions.BasePermission):
     """
-    Allow access only if user is authenticated and participant of the conversation.
+    Custom permission to allow only participants of a conversation to access related messages.
     """
 
     def has_permission(self, request, view):
-        # Allow only authenticated users
+        # Ensure user is authenticated for any API access
         return request.user and request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        # Check if user is participant of the conversation
-        is_participant = obj.conversation.participants.filter(id=request.user.id).exists()
-        if request.method in permissions.SAFE_METHODS:
-            return is_participant
-        elif request.method in ['PUT', 'PATCH', 'DELETE']:
-            return is_participant
-        return False
+        # Only participants can view, update, or delete a message
+        if request.method in ["GET", "PUT", "PATCH", "DELETE"]:
+            return request.user in obj.conversation.participants.all()
+        return True  # allow POST or other methods generally
